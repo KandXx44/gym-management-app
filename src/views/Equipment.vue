@@ -63,42 +63,35 @@
     methods: {
       async fetchEquipments() {
         try {
-          const sessionResponse = await apiClient.get('/login/session');
-          const userId = sessionResponse.data.userId;
-          const userRole = sessionResponse.data.userRole;
-
-          if (!userId || userRole !== 'admin') {
-            alert('Unauthorized access. Please log in as a admin.');
-            this.$router.push('/login');
-            return;
-          }
-
           const response = await apiClient.get('/equipments');
           this.equipments = response.data;
         } catch (error) {
-          this.$router.push('/login');
+          console.error("Error fetching equipments:", error);
+          alert("Failed to load equipments.");
         }
       },
       goToPage(page) {
-        this.$router.push(`/${page}`);
+        this.$router.push(`/gym-management-app/${page}`);
       },
       logout() {
-        apiClient.post('/login/logout')
+        const userId = localStorage.getItem('user_id');
+
+        apiClient.post('/login/logout', { user_id: userId })
           .then(() => {
-            // Clear client-side session or authentication tokens if applicable
-            alert("Logged out successfully!");
-            this.$router.push('/login'); // Redirect to login page
+            localStorage.clear();
+            alert('Logged out successfully!');
+            this.$router.push('/gym-management-app');
           })
           .catch(error => {
-            console.error("Error during logout:", error);
-            alert("Failed to log out. Please try again.");
+            console.error('Error during logout:', error);
+            alert('Failed to log out. Please try again.');
           });
       },
       addEquipment() {
-        this.$router.push('/add-equipment');
+        this.$router.push('/gym-management-app/add-equipment');
       },
       editEquipment(id) {
-        this.$router.push(`/edit-equipment/${id}`);
+        this.$router.push(`/gym-management-app/edit-equipment/${id}`);
       },
       async deleteEquipment(id) {
         if (confirm(`Are you sure you want to delete this equipment?`)) {

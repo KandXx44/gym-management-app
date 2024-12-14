@@ -42,33 +42,19 @@
       };
     },
     async mounted() {
-      try {
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
+      const id = this.$route.params.id;
 
-        if (!userId || userRole !== 'admin') {
-          alert('Unauthorized access. Please log in as a admin.');
-          this.$router.push('/login');
-          return;
-        }
+      const response = await apiClient.get(`/courses/${id}`);
+      const courseData = response.data;
 
-        const id = this.$route.params.id;
-        const response = await apiClient.get(`/courses/${id}`);
-        const courseData = response.data;
-
-        // Format date and time separately if needed
-        this.course = {
-          name: courseData.name,
-          course_id: courseData.course_id,
-          course_date: courseData.course_date.split('T')[0],
-          course_time: courseData.course_time.slice(0, 5),
-          duration: courseData.duration,
-          coach: courseData.coach,
-        };
-      } catch(err) {
-        this.$router.push('/login');
-      }
+      this.course = {
+        name: courseData.name,
+        course_id: courseData.course_id,
+        course_date: courseData.course_date.split('T')[0],
+        course_time: courseData.course_time.slice(0, 5),
+        duration: courseData.duration,
+        coach: courseData.coach,
+      };
     },
     methods: {
       async editCourse() {
@@ -76,7 +62,7 @@
         await apiClient.put(`/courses/${id}`, this.course)
           .then(() => {
             alert('Course updated successfully!');
-            this.$router.push('/course');
+            this.$router.push('/gym-management-app/course');
           })
           .catch(error => {
             console.error("Error updating course:", error);

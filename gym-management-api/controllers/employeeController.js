@@ -10,7 +10,7 @@ exports.getAllEmployees = (req, res) => {
 
 exports.getEmployee = (req, res) => {
   const id = req.params.id;
-  db.query('SELECT * FROM employees WHERE id = ? OR employee_id = ?', [id, id], (err, results) => {
+  db.query('SELECT * FROM employees WHERE id = ?', [id], (err, results) => {
     if (err) return res.status(500).json(err);
     if (results.length === 0) return res.status(404).json({ message: 'Employee not found' });
     res.json(results[0]);
@@ -60,4 +60,4 @@ exports.deleteEmployee = (req, res) => {
       if (err) return res.status(500).json({ success: false, message: 'Database error', error: err });
       res.json({ success: true, message: 'Employee deleted successfully' });
   });
-};
+}

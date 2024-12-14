@@ -61,31 +61,17 @@
       };
     },
     async mounted() {
-      try {
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
-
-        if (!userId || userRole !== 'member') {
-          alert('Unauthorized access. Please log in as a member.');
-          this.$router.push('/login');
-          return;
-        }
-
-        const id = this.$route.params.id;
-        await apiClient.get(`/user/${id}`)
-          .then(response => {
-            this.user = response.data;
-            this.user.password = '';
-          })
-          .catch(error => {
-            console.error("Error fetching user data:", error);
-            alert("Failed to load user data.");
-          });
-      } catch(err) {
-        this.$router.push('/login');
-      }
+      const id = this.$route.params.id;
       
+      await apiClient.get(`/user/${id}`)
+        .then(response => {
+          this.user = response.data;
+          this.user.password = '';
+        })
+        .catch(error => {
+          console.error("Error fetching user data:", error);
+          alert("Failed to load user data.");
+        });
     },
     methods: {
       async saveProfile() {
@@ -93,7 +79,7 @@
         await apiClient.put(`/user/${id}`, this.user)
           .then(() => {
             alert('User profile updated successfully!');
-            this.$router.push(`/user/profile`);
+            this.$router.push(`/gym-management-app/user/profile`);
           })
           .catch(error => {
             console.error("Error updating user profile:", error);

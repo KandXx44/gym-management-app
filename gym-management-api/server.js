@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const session = require('express-session');
 const app = express();
 
 // Import your routes
@@ -21,18 +20,7 @@ app.use(cors({
 // Middleware for JSON parsing
 app.use(express.json());
 
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,          // Restricts access to cookie from client-side JS
-    secure: false,           // Set to true in production with HTTPS
-    maxAge: 1000 * 60 * 60   // Session timeout (1 hour)
-  }
-}));
-
-// Register routes
+// Register routes (no session-related middleware)
 app.use('/api/members', memberRoutes); 
 app.use('/api/employees', employeeRoutes);
 app.use('/api/equipments', equipmentRoutes);
@@ -41,9 +29,7 @@ app.use('/api/login', loginRoute);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 
-
-// Start server
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });

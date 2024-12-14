@@ -19,12 +19,6 @@ exports.getCourse = (req, res) => {
 exports.createCourse = (req, res) => {
   const { id, name, course_date, course_time, duration, coach } = req.body;
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.course_date)) {
-    return res.status(404).json({ success: false, message: 'Course date must be in the format YYYY-MM-DD.' });
-  }
-  if (!/^\d{2}:\d{2}$/.test(data.course_time)) {
-    return res.status(404).json({ success: false, message: 'Course time must be in the format HH:MM.' });
-  }
   if (typeof duration !== 'number' || duration < 0) {
     return res.status(404).json({ success: false, message: 'Duration must be a number greater than 0' });
   }
@@ -46,12 +40,6 @@ exports.updateCourse = (req, res) => {
   const courseId = req.params.id;
   const { name, course_date, course_time, duration, coach } = req.body;
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.course_date)) {
-    return res.status(404).json({ success: false, message: 'Course date must be in the format YYYY-MM-DD.' });
-  }
-  if (!/^\d{2}:\d{2}$/.test(data.course_time)) {
-    return res.status(404).json({ success: false, message: 'Course time must be in the format HH:MM.' });
-  }
   if (typeof duration !== 'number' || duration < 0) {
     return res.status(404).json({ success: false, message: 'Duration must be a number greater than 0' });
   }

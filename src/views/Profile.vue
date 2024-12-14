@@ -73,52 +73,40 @@ export default {
     };
   },
   async mounted() {
-    try {
-      const sessionResponse = await apiClient.get('/login/session');
-      const userId = sessionResponse.data.userId;
-      const userRole = sessionResponse.data.userRole;
-
-      if (!userId || userRole !== 'member') {
-        alert('Unauthorized access. Please log in as a member.');
-        this.$router.push('/login');
-        return;
-      }
-
-      await apiClient.get(`/user/${userId}`)
-        .then(response => {
-          this.user = response.data;
-        })
-        .catch(error => {
-          console.error("Error fetching user data:", error);
-          alert("Failed to load user data.");
-        });
-    } catch(error) {
-      alert('Unauthorized access. Please log in as a member.');
-      this.$router.push('/login');
-    }
+    const userId = localStorage.getItem('user_id');
+    await apiClient.get(`/user/${userId}`)
+      .then(response => {
+        this.user = response.data;
+      })
+      .catch(error => {
+        console.error("Error fetching user data:", error);
+        alert("Failed to load user data.");
+      });
   },
   methods: {
     goToPage(page) {
       if (page === 'user') {
-        this.$router.push(`/${page}`);
+        this.$router.push(`/gym-management-app/${page}`);
       } else {
-        this.$router.push(`/user/${page}`);
+        this.$router.push(`/gym-management-app/user/${page}`);
       }
     },
     logout() {
-      apiClient.post('/login/logout')
-        .then(() => {
-          // Clear client-side session or authentication tokens if applicable
-          alert("Logged out successfully!");
-          this.$router.push('/login'); // Redirect to login page
-        })
-        .catch(error => {
-          console.error("Error during logout:", error);
-          alert("Failed to log out. Please try again.");
-        });
-    },
+        const userId = localStorage.getItem('user_id');
+
+        apiClient.post('/login/logout', { user_id: userId })
+          .then(() => {
+            localStorage.clear();
+            alert('Logged out successfully!');
+            this.$router.push('/gym-management-app');
+          })
+          .catch(error => {
+            console.error('Error during logout:', error);
+            alert('Failed to log out. Please try again.');
+          });
+      },
     editProfile(id) {
-      this.$router.push(`/edit-profile/${id}`);
+      this.$router.push(`/gym-management-app/edit-profile/${id}`);
     }
   }
 };

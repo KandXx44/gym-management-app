@@ -4,12 +4,27 @@ const bcrypt = require('bcrypt');
 exports.getUserProfile = (req, res) => {
   const userId = req.params.id;
 
-  const query = 'SELECT * FROM members WHERE member_id = ?'; // Assuming you fetch from members table
+  const query = 'SELECT * FROM members WHERE member_id = ?';
   db.query(query, [userId], (err, results) => {
     if (err) return res.status(500).json({ success: false, message: 'Database error' });
 
     if (results.length > 0) {
-      return res.json(results[0]); // Send back the user data
+      return res.json(results[0]);
+    } else {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+  });
+};
+
+exports.getAdminProfile = (req, res) => {
+  const userId = req.params.id;
+
+  const query = 'SELECT * FROM employees WHERE employee_id = ?'; 
+  db.query(query, [userId], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: 'Database error' });
+
+    if (results.length > 0) {
+      return res.json(results[0]);
     } else {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -24,7 +39,7 @@ exports.updateUserProfile = async (req, res) => {
     return res.status(404).json({ success: false, message: 'Age must be a number greater than 0' });
   }
   // Check Gender
-  if (!['male', 'female'].includes(gender)) {
+  if (!['Male', 'Female'].includes(gender)) {
     return res.status(404).json({ success: false, message: 'Gender must be male or female' });
   }
 

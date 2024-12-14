@@ -34,27 +34,12 @@
         }
       };
     },
-    async mounted() {
-      try{
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
-
-        if (!userId || userRole !== 'admin') {
-          alert('Unauthorized access. Please log in as a admin.');
-          this.$router.push('/login');
-          return;
-        }
-      } catch (err) {
-        this.$router.push('/login');
-      }
-    },
     methods: {
       async addEquipment() {
         try {
           await apiClient.post('/equipments', this.newEquipment);
           alert(`Equipment ${this.newEquipment.name} added successfully!`);
-          this.$router.push('/equipment');
+          this.$router.push('/gym-management-app/equipment');
         } catch (error) {
           console.error('Error adding equipment:', error);
           alert('Failed to add equipment. Please try again.');

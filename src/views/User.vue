@@ -43,50 +43,36 @@ export default {
   methods: {
     async fetchCourses() {
       try {
-        // Check session validity
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
+        const userId = localStorage.getItem('user_id');
 
-        if (!userId || userRole !== 'member') {
-          alert('Unauthorized access. Please log in as a member.');
-          this.$router.push('/login');
-          return;
-        }
-
-        // Fetch user courses
         const response = await apiClient.get(`/user/courses/${userId}`);
         this.events = response.data;
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          // Handle unauthorized error
-          alert('Session expired. Please log in again.');
-          this.$router.push('/login');
-        } else {
-          console.error("Error fetching courses:", error);
-          alert("Failed to load courses.");
-        }
+          console.error("Error fetching user data:", error);
+          alert("Failed to load user data.");
       }
     },
     goToPage(page) {
       if (page === 'user') {
-        this.$router.push(`/${page}`);
+        this.$router.push(`/gym-management-app/${page}`);
       } else {
-        this.$router.push(`/user/${page}`);
+        this.$router.push(`/gym-management-app/user/${page}`);
       }
     },
     logout() {
-      apiClient.post('/login/logout')
-        .then(() => {
-          // Clear client-side session or authentication tokens if applicable
-          alert("Logged out successfully!");
-          this.$router.push('/login'); // Redirect to login page
-        })
-        .catch(error => {
-          console.error("Error during logout:", error);
-          alert("Failed to log out. Please try again.");
-        });
-    }
+        const userId = localStorage.getItem('user_id');
+
+        apiClient.post('/login/logout', { user_id: userId })
+          .then(() => {
+            localStorage.clear();
+            alert('Logged out successfully!');
+            this.$router.push('/gym-management-app');
+          })
+          .catch(error => {
+            console.error('Error during logout:', error);
+            alert('Failed to log out. Please try again.');
+          });
+      },
   },
 };
 </script>

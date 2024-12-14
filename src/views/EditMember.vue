@@ -53,30 +53,17 @@
       };
     },
     async mounted() {
-      try {
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
-
-        if (!userId || userRole !== 'admin') {
-          alert('Unauthorized access. Please log in as a admin.');
-          this.$router.push('/login');
-          return;
-        }
-
-        const id = this.$route.params.id;
-        await apiClient.get(`/members/${id}`)
-          .then(response => {
-            this.member = response.data;
-            this.member.password = '';
-          })
-          .catch(error => {
-            console.error("Error fetching member data:", error);
-            alert("Failed to load member data.");
-          });
-      } catch(err) {
-        this.$router.push('/login');
-      }
+      const id = this.$route.params.id;
+      
+      await apiClient.get(`/members/${id}`)
+        .then(response => {
+          this.member = response.data;
+          this.member.password = '';
+        })
+        .catch(error => {
+          console.error("Error fetching member data:", error);
+          alert("Failed to load member data.");
+        });
     },
     methods: {
       async editMember() {
@@ -84,7 +71,7 @@
         await apiClient.put(`/members/${id}`, this.member)
           .then(() => {
             alert('Member updated successfully!');
-            this.$router.push('/member');
+            this.$router.push('/gym-management-app/member');
           })
           .catch(error => {
             console.error("Error updating member:", error);

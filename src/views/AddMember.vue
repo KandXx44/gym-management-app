@@ -53,27 +53,12 @@ export default {
       },
     };
   },
-  async mounted() {
-    try {
-      const sessionResponse = await apiClient.get('/login/session');
-      const userId = sessionResponse.data.userId;
-      const userRole = sessionResponse.data.userRole;
-
-      if (!userId || userRole !== 'admin') {
-        alert('Unauthorized access. Please log in as a admin.');
-        this.$router.push('/login');
-        return;
-      }
-    } catch (err) {
-      this.$router.push('/login');
-    }
-  },
   methods: {
     async addMember() {
       try {
         const response = await apiClient.post('/members', this.newMember);
         alert(`Member ${this.newMember.name} added successfully!`);
-        this.$router.push('/member');
+        this.$router.push('/gym-management-app/member');
       } catch (error) {
         console.error('Error adding member:', error.response?.data || error);
         alert('Failed to add member. Please try again.');

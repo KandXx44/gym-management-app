@@ -34,29 +34,16 @@
       };
     },
     async mounted() {
-      try{
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
+      const id = this.$route.params.id;
 
-        if (!userId || userRole !== 'admin') {
-          alert('Unauthorized access. Please log in as a admin.');
-          this.$router.push('/login');
-          return;
-        }
-
-        const id = this.$route.params.id;
-        await apiClient.get(`/equipments/${id}`)
-          .then(response => {
-            this.equipment = response.data;
-          })
-          .catch(error => {
-            console.error("Error fetching equipment data:", error);
-            alert("Failed to load equipment data.");
-          });
-      } catch(err) {
-        this.$router.push('/login');
-      }
+      await apiClient.get(`/equipments/${id}`)
+        .then(response => {
+          this.equipment = response.data;
+        })
+        .catch(error => {
+          console.error("Error fetching equipment data:", error);
+          alert("Failed to load equipment data.");
+        });
     },
     methods: {
       async editEquipment() {
@@ -64,7 +51,7 @@
         await apiClient.put(`/equipments/${id}`, this.equipment)
           .then(() => {
             alert('Equipment updated successfully!');
-            this.$router.push('/equipment');
+            this.$router.push('/gym-management-app/equipment');
           })
           .catch(error => {
             console.error("Error updating equipment:", error);

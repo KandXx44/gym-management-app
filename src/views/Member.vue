@@ -69,34 +69,35 @@
     methods: {
       async fetchMembers() {
         try {
-          await apiClient.get('/login/session');
-          
           const response = await apiClient.get('/members');
           this.members = response.data;
         } catch (error) {
-          this.$router.push('/login');
+          console.error("Error fetching members:", error);
+          alert("Failed to load members.");
         }
       },
       goToPage(page) {
-        this.$router.push(`/${page}`);
+        this.$router.push(`/gym-management-app/${page}`);
       },
       logout() {
-        apiClient.post('/login/logout')
+        const userId = localStorage.getItem('user_id');
+
+        apiClient.post('/login/logout', { user_id: userId })
           .then(() => {
-            // Clear client-side session or authentication tokens if applicable
-            alert("Logged out successfully!");
-            this.$router.push('/login'); // Redirect to login page
+            localStorage.clear();
+            alert('Logged out successfully!');
+            this.$router.push('/gym-management-app');
           })
           .catch(error => {
-            console.error("Error during logout:", error);
-            alert("Failed to log out. Please try again.");
+            console.error('Error during logout:', error);
+            alert('Failed to log out. Please try again.');
           });
       },
       addMember() {
-        this.$router.push('/add-member');
+        this.$router.push('/gym-management-app/add-member');
       },
       editMember(id) {
-        this.$router.push(`/edit-member/${id}`);
+        this.$router.push(`/gym-management-app/edit-member/${id}`);
       },
       async deleteMember(id) {
         if (confirm(`Are you sure you want to delete this member?`)) {

@@ -53,13 +53,16 @@ export default {
         });
 
         if (response.data.success) {
+          const { user_id, user_role } = response.data;
+          localStorage.setItem('user_id', user_id);
+          localStorage.setItem('user_role', user_role);
+
           if (response.data.isAdmin) {
-            this.$router.push(`/admin`);
+            this.$router.push(`/gym-management-app/admin`);
           } else {
-            this.$router.push(`/user`);
+            this.$router.push(`/gym-management-app/user`);
           }
         } else {
-          // Show an error message if login fails
           this.errorMessage = response.data.message || 'Invalid username or password';
         }
       } catch (error) {

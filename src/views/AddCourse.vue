@@ -15,7 +15,7 @@
         <input type="time" v-model="newCourse.course_time" id="course_time" required />
   
         <label for="duration">Duration:</label>
-        <input type="text" v-model="newCourse.duration" id="duration" required />
+        <input type="number" v-model="newCourse.duration" id="duration" required />
 
         <label for="coach">Coach:</label>
         <input type="text" v-model="newCourse.coach" id="coach" required />
@@ -42,27 +42,12 @@
         }
       };
     },
-    async mounted() {
-      try {
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
-
-        if (!userId || userRole !== 'admin') {
-          alert('Unauthorized access. Please log in as a admin.');
-          this.$router.push('/login');
-          return;
-        }
-      } catch (err) {
-        this.$router.push('/login');
-      }
-    },
     methods: {
       async addCourse() {
         try {
           await apiClient.post('/courses', this.newCourse);
           alert(`Course ${this.newCourse.name} added successfully!`);
-          this.$router.push('/course');
+          this.$router.push('/gym-management-app/course');
         } catch (error) {
           console.error('Error adding course:', error);
           alert('Failed to add course. Please try again.');

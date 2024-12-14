@@ -62,40 +62,34 @@
     methods: {
       async fetchCourses() {
         try {
-          const sessionResponse = await apiClient.get('/login/session');
-          const userId = sessionResponse.data.userId;
-          const userRole = sessionResponse.data.userRole;
-
-          if (!userId || userRole !== 'member') {
-            alert('Unauthorized access. Please log in as a member.');
-            this.$router.push('/login');
-            return;
-          }
+          const userId = localStorage.getItem('user_id');
 
           const response = await apiClient.get(`/user/courses/${userId}`);
           this.courses = response.data;
         } catch (error) {
-          alert('Unauthorized access. Please log in as a member.');
-          this.$router.push('/login');
+          console.error("Error fetching courses data:", error);
+          alert("Failed to load courses data.");
         }
       },
       goToPage(page) {
         if (page === 'user') {
-          this.$router.push(`/${page}`);
+          this.$router.push(`/gym-management-app/${page}`);
         } else {
-          this.$router.push(`/user/${page}`);
+          this.$router.push(`/gym-management-app/user/${page}`);
         }
       },
       logout() {
-        apiClient.post('/login/logout')
+        const userId = localStorage.getItem('user_id');
+
+        apiClient.post('/login/logout', { user_id: userId })
           .then(() => {
-            // Clear client-side session or authentication tokens if applicable
-            alert("Logged out successfully!");
-            this.$router.push('/login'); // Redirect to login page
+            localStorage.clear();
+            alert('Logged out successfully!');
+            this.$router.push('/gym-management-app');
           })
           .catch(error => {
-            console.error("Error during logout:", error);
-            alert("Failed to log out. Please try again.");
+            console.error('Error during logout:', error);
+            alert('Failed to log out. Please try again.');
           });
       },
       async drop(id) {

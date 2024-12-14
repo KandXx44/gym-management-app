@@ -11,9 +11,27 @@ exports.login = async (req, res) => {
       const member = memberResults[0];
       const isMatch = await bcrypt.compare(password, member.password);
       if (isMatch) {
-        req.session.userId = member.member_id;
-        req.session.userRole = 'member';
-        return res.json({ success: true, isAdmin: false });
+        const userId = member.member_id;
+        const userRole = 'user';
+
+        // Insert or update the user login record
+        db.query('SELECT * FROM user_login WHERE user_id = ?', [userId], (err, loginResults) => {
+          if (err) return res.status(500).json({ success: false, message: 'Database error' });
+
+          if (loginResults.length === 0) {
+            // Insert new record if not exists
+            db.query('INSERT INTO user_login (user_id, user_role) VALUES (?, ?)', [userId, userRole], (err) => {
+              if (err) return res.status(500).json({ success: false, message: 'Failed to log in' });
+            });
+          } else {
+            // Optionally update the role if needed
+            db.query('UPDATE user_login SET user_role = ? WHERE user_id = ?', [userRole, userId], (err) => {
+              if (err) return res.status(500).json({ success: false, message: 'Failed to log in' });
+            });
+          }
+        });
+
+        return res.json({ success: true, isAdmin: false, user_id: userId, user_role: userRole });
       }
       return res.json({ success: false, message: 'Invalid password' });
     }
@@ -24,9 +42,27 @@ exports.login = async (req, res) => {
       const employee = employeeResults[0];
       const isMatch = await bcrypt.compare(password, employee.password);
       if (isMatch) {
-        req.session.userId = employee.employee_id;
-        req.session.userRole = employee.is_admin ? 'admin' : 'employee';
-        return res.json({ success: true, isAdmin: employee.is_admin });
+        const userId = employee.employee_id;
+        const userRole = employee.is_admin ? 'admin' : 'employee';
+
+        // Insert or update the user login record
+        db.query('SELECT * FROM user_login WHERE user_id = ?', [userId], (err, loginResults) => {
+          if (err) return res.status(500).json({ success: false, message: 'Database error' });
+
+          if (loginResults.length === 0) {
+            // Insert new record if not exists
+            db.query('INSERT INTO user_login (user_id, user_role) VALUES (?, ?)', [userId, userRole], (err) => {
+              if (err) return res.status(500).json({ success: false, message: 'Failed to log in' });
+            });
+          } else {
+            // Optionally update the role if needed
+            db.query('UPDATE user_login SET user_role = ? WHERE user_id = ?', [userRole, userId], (err) => {
+              if (err) return res.status(500).json({ success: false, message: 'Failed to log in' });
+            });
+          }
+        });
+
+        return res.json({ success: true, isAdmin: employee.is_admin, user_id: userId, user_role: userRole });
       }
       return res.json({ success: false, message: 'Invalid password' });
     }
@@ -40,28 +76,40 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.session = (req, res) => {
-  if (req.session.userId) {
-    res.json({
-      userId: req.session.userId,
-      userRole: req.session.userRole
+exports.check = (req, res) => {
+  const { user_id } = req.params;  // Correctly access user_id from params
+
+  if (!user_id) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    // Query the user_login table to check if the user is logged in
+    db.query('SELECT * FROM user_login WHERE user_id = ?', [user_id], (err, rows) => {
+      if (err) {
+        console.error('Error checking login:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      if (rows.length > 0) {
+        // User exists in the login table
+        res.status(200).json({ loggedIn: true, user: rows[0] });
+      } else {
+        // User is not logged in
+        res.status(401).json({ loggedIn: false, message: 'User not logged in' });
+      }
     });
-  } else {
-    res.status(401).json({ message: 'No active session' });
+  } catch (error) {
+    console.error('Error during authentication check:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 exports.logout = (req, res) => {
-  if (!req.session) {
-    return res.status(400).json({ success: false, message: 'No active session to log out' });
-  }
+  const { user_id } = req.body;
 
-  req.session.destroy((err) => {
-    if (err) {
-      console.error('Error during logout:', err);
-      return res.status(500).json({ success: false, message: 'Failed to log out' });
-    }
-    res.clearCookie('connect.sid'); // Clear the session cookie
-    return res.json({ success: true, message: 'Logged out successfully' });
+  db.query('DELETE FROM user_login WHERE user_id = ?', [user_id], (err) => {
+    if (err) return res.status(500).json({ success: false, message: 'Failed to log out' });
+    res.json({ success: true, message: 'Logged out successfully' });
   });
 };

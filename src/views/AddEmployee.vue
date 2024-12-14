@@ -45,27 +45,12 @@
         }
       };
     },
-    async mounted() {
-      try{
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
-
-        if (!userId || userRole !== 'admin') {
-          alert('Unauthorized access. Please log in as a admin.');
-          this.$router.push('/login');
-          return;
-        }
-      } catch (err) {
-        this.$router.push('/login');
-      }
-    },
     methods: {
       async addEmployee() {
         try {
           await apiClient.post('/employees', this.newEmployee);
           alert(`Employee ${this.newEmployee.name} added successfully!`);
-          this.$router.push('/employee');
+          this.$router.push('/gym-management-app/employee');
         } catch (error) {
           console.error('Error adding employee:', error);
           alert('Failed to add employee. Please try again.');

@@ -45,36 +45,23 @@
       };
     },
     async mounted() {
-      try {
-        const sessionResponse = await apiClient.get('/login/session');
-        const userId = sessionResponse.data.userId;
-        const userRole = sessionResponse.data.userRole;
+      const id = this.$route.params.id;
+      
+      await apiClient.get(`/employees/${id}`)
+        .then(response => {
+          this.employee = response.data;
+          this.employee.password = '';
 
-        if (!userId || userRole !== 'admin') {
-          alert('Unauthorized access. Please log in as a admin.');
-          this.$router.push('/login');
-          return;
-        }
-
-        const id = this.$route.params.id;
-        await apiClient.get(`/employees/${id}`)
-          .then(response => {
-            this.employee = response.data;
-            this.employee.password = '';
-
-            if (this.employee.is_admin === 0) {
-              this.employee.is_admin = false;
-            } else {
-              this.employee.is_admin = true;
-            }
-          })
-          .catch(error => {
-            console.error("Error fetching employee data:", error);
-            alert("Failed to load employee data.");
-          });
-      } catch(err) {
-        this.$router.push('/login');
-      }
+          if (this.employee.is_admin === 0) {
+            this.employee.is_admin = false;
+          } else {
+            this.employee.is_admin = true;
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching employee data:", error);
+          alert("Failed to load employee data.");
+        });
     },
     methods: {
       async editEmployee() {
@@ -82,7 +69,7 @@
         await apiClient.put(`/employees/${id}`, this.employee)
           .then(() => {
             alert('Employee updated successfully!');
-            this.$router.push('/employee');
+            this.$router.push('/gym-management-app/employee');
           })
           .catch(error => {
             console.error("Error updating employee:", error);
